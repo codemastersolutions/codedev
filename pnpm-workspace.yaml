@@ -1,0 +1,3 @@
+onlyBuiltDependencies:
+  - '@codemastersolutions/commitzero'
+  - esbuild

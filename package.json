@@ -1,0 +1,66 @@
+{
+  "name": "@codemastersolutions/codedev",
+  "version": "0.0.0",
+  "description": "CodeDev CLI - Developer tools with zero runtime dependencies.",
+  "license": "MIT",
+  "author": "CodeMaster Soluções",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/CodeDev.git"
+  },
+  "homepage": "https://github.com/your-org/CodeDev",
+  "bugs": {
+    "url": "https://github.com/your-org/CodeDev/issues"
+  },
+  "bin": {
+    "codedev": "./dist/cjs/cli.js",
+    "cdev": "./dist/cjs/cli.js"
+  },
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    },
+    "./cli": "./dist/cjs/cli.js"
+  },
+  "files": [
+    "dist/**",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm",
+    "lint": "eslint --ext .ts src",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "commit": "pnpm run commitzero commit -a",
+    "commit:push": "pnpm run commitzero commit --add --push",
+    "commitzero": "commitzero",
+    "commitzero:install": "pnpm exec commitzero install-hooks",
+    "commitzero:uninstall": "pnpm exec commitzero uninstall-hooks"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@codemastersolutions/commitzero": "^0.0.41",
+    "@types/node": "^20.11.30",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^4.0.12",
+    "eslint": "^9.10.0",
+    "typescript": "^5.6.3",
+    "vitest": "^4.0.12"
+  },
+  "packageManager": "pnpm@10.17.0"
+}
