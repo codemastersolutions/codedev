@@ -42,6 +42,14 @@ cdev g cpf -f
 cdev v cnpj 12.345.678/0001-95
 ```
 
+### CLI Help & Saída
+
+- Comandos: `generate <cpf|cnpj> [--formatted|-f]`, `validate <cpf|cnpj> <value>`
+- Aliases: `generate` → `g`, `gen`; `validate` → `v`, `val`
+- Saída de `validate`: imprime `valid` ou `invalid` e retorna `0` ou `1` respectivamente
+- Formatação: `--formatted`/`-f` aplica pontuação ao documento gerado (apenas em `generate`)
+- Compatibilidade: aceita `--formated`/`--format` por compatibilidade
+
 ## Run via pnpm dlx
 
 Execute sem instalar globalmente, ideal para uso pontual:
@@ -96,8 +104,13 @@ import {
 const cpf = generateCPF(true);
 const isCpfValid = isValidCPF(cpf);
 
+// formatação explícita
+const rawCpf = generateCPF(false);
+const prettyCpf = formatCPF(rawCpf);
+
 const cnpj = generateCNPJ();
 const isCnpjValid = isValidCNPJ(cnpj);
+const prettyCnpj = formatCNPJ(cnpj);
 ```
 
 Consumidores CommonJS podem usar `require('@codemastersolutions/codedev')` para importar as mesmas funções.
