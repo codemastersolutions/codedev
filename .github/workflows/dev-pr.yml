@@ -20,8 +20,7 @@ jobs:
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
+        # Deixe sem "version" para usar o packageManager do package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
