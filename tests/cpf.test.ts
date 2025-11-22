@@ -59,6 +59,21 @@ describe('CPF utilities', () => {
     expect(isValidCPF(broken)).toBe(false);
   });
 
+  it('exercises calcCpfDigit remainder < 2 via generated CPF', () => {
+    let found = false;
+    for (let i = 0; i < 300 && !found; i++) {
+      const cpf = generateCPF(false);
+      const nums = [...cpf].map((d) => parseInt(d, 10));
+      const d1 = nums[9];
+      const d2 = nums[10];
+      if (d1 === 0 || d2 === 0) {
+        expect(isValidCPF(cpf)).toBe(true);
+        found = true;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
   it('rejects invalid length CPF', () => {
     expect(isValidCPF('')).toBe(false);
     expect(isValidCPF('123')).toBe(false);

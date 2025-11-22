@@ -40,4 +40,19 @@ describe('CNPJ utilities', () => {
     const broken = valid.slice(0, 13) + ((parseInt(valid[13], 10) + 1) % 10);
     expect(isValidCNPJ(broken)).toBe(false);
   });
+
+  it('exercises calcDigit remainder < 2 via generated CNPJ', () => {
+    let found = false;
+    for (let i = 0; i < 300 && !found; i++) {
+      const cnpj = generateCNPJ(false);
+      const nums = [...cnpj].map((d) => parseInt(d, 10));
+      const d1 = nums[12];
+      const d2 = nums[13];
+      if (d1 === 0 || d2 === 0) {
+        expect(isValidCNPJ(cnpj)).toBe(true);
+        found = true;
+      }
+    }
+    expect(found).toBe(true);
+  });
 });
