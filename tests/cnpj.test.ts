@@ -33,4 +33,11 @@ describe('CNPJ utilities', () => {
     expect(formatCNPJ('123')).toBe('123');
     expect(formatCNPJ('')).toBe('');
   });
+
+  it('detects invalid CNPJ when only the last digit is altered', () => {
+    const valid = generateCNPJ(false);
+    expect(isValidCNPJ(valid)).toBe(true);
+    const broken = valid.slice(0, 13) + ((parseInt(valid[13], 10) + 1) % 10);
+    expect(isValidCNPJ(broken)).toBe(false);
+  });
 });

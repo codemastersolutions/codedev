@@ -45,6 +45,20 @@ describe('CPF utilities', () => {
     expect(cpfRS[8]).toBe('0');
   });
 
+  it('handles unknown UF gracefully (no override applied)', () => {
+    // Force an unknown UF at runtime to exercise the else branch
+    const cpf = generateCPF({ uf: 'ZZ' as unknown as any });
+    expect(isValidCPF(cpf)).toBe(true);
+    expect(cpf).toMatch(/^\d{11}$/);
+  });
+
+  it('detects invalid CPF when only the last digit is altered', () => {
+    const valid = generateCPF(false);
+    expect(isValidCPF(valid)).toBe(true);
+    const broken = valid.slice(0, 10) + ((parseInt(valid[10], 10) + 1) % 10);
+    expect(isValidCPF(broken)).toBe(false);
+  });
+
   it('rejects invalid length CPF', () => {
     expect(isValidCPF('')).toBe(false);
     expect(isValidCPF('123')).toBe(false);
