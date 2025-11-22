@@ -1,6 +1,6 @@
 {
   "name": "@codemastersolutions/codedev",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CodeDev CLI - Developer tools with zero runtime dependencies.",
   "license": "MIT",
   "author": "CodeMaster Soluções",
