@@ -4,18 +4,24 @@ Developer tools CLI with zero runtime dependencies.
 
 [![npm version](https://img.shields.io/npm/v/@codemastersolutions/codedev?label=npm&logo=npm)](https://www.npmjs.com/package/@codemastersolutions/codedev)
 [![npm downloads](https://img.shields.io/npm/dm/@codemastersolutions/codedev?logo=npm)](https://www.npmjs.com/package/@codemastersolutions/codedev)
-[![license](https://img.shields.io/github/license/your-org/CodeDev)](LICENSE)
+[![license](https://img.shields.io/github/license/@codemastersolutions/CodeDev)](LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D18-43853d?logo=node.js)](https://nodejs.org/)
-[![PR Checks](https://github.com/your-org/CodeDev/actions/workflows/dev-pr.yml/badge.svg)](https://github.com/your-org/CodeDev/actions/workflows/dev-pr.yml)
-[![Release](https://github.com/your-org/CodeDev/actions/workflows/release.yml/badge.svg)](https://github.com/your-org/CodeDev/actions/workflows/release.yml)
-[![CodeQL](https://github.com/your-org/CodeDev/actions/workflows/codeql.yml/badge.svg)](https://github.com/your-org/CodeDev/actions/workflows/codeql.yml)
-[![Coverage Status](https://img.shields.io/codecov/c/github/your-org/CodeDev)](https://codecov.io/gh/your-org/CodeDev)
+[![PR Checks](https://github.com/@codemastersolutions/CodeDev/actions/workflows/dev-pr.yml/badge.svg)](https://github.com/@codemastersolutions/CodeDev/actions/workflows/dev-pr.yml)
+[![Release](https://github.com/@codemastersolutions/CodeDev/actions/workflows/release.yml/badge.svg)](https://github.com/@codemastersolutions/CodeDev/actions/workflows/release.yml)
+[![CodeQL](https://github.com/@codemastersolutions/CodeDev/actions/workflows/codeql.yml/badge.svg)](https://github.com/@codemastersolutions/CodeDev/actions/workflows/codeql.yml)
+[![Coverage Status](https://img.shields.io/codecov/c/github/@codemastersolutions/CodeDev)](https://codecov.io/gh/@codemastersolutions/CodeDev)
 
 ## Global Install
 
 ```bash
 pnpm add -g @codemastersolutions/codedev
 ```
+
+Outros gerenciadores de pacotes:
+
+- npm: `npm i -g @codemastersolutions/codedev`
+- yarn: `yarn global add @codemastersolutions/codedev`
+- bun: `bun add -g @codemastersolutions/codedev`
 
 Após instalar globalmente:
 
@@ -61,6 +67,18 @@ pnpm dlx @codemastersolutions/codedev generate cnpj -f
 pnpm dlx @codemastersolutions/codedev val cnpj 12.345.678/0001-95
 ```
 
+Alternativas com outros package managers:
+
+- npm (npx):
+  - `npx @codemastersolutions/codedev generate cpf -f`
+  - `npx @codemastersolutions/codedev v cpf 529.982.247-25`
+- yarn (dlx):
+  - `yarn dlx @codemastersolutions/codedev generate cnpj -f`
+  - `yarn dlx @codemastersolutions/codedev val cnpj 12.345.678/0001-95`
+- bun (bunx):
+  - `bunx @codemastersolutions/codedev generate cpf -f`
+  - `bunx @codemastersolutions/codedev v cnpj 12.345.678/0001-95`
+
 > Nota: mesmo via `pnpm dlx` com pacote escopado, os executáveis disponibilizados permanecem `codedev` e `cdev`.
 
 ### Aliases
@@ -84,13 +102,12 @@ codedev val cnpj 12.345.678/0001-95
 
 > Nota: o parser aceita `--formated` por compatibilidade, mas não é recomendado.
 
-<!-- Legacy syntax was removed. Use the new order and aliases above. -->
-
 ## Library API
 
 O pacote é dual-target: ESM e CommonJS, com tipagens em `dist/types`. Node `>=18` é requerido.
 
 ### ESM (TypeScript / Node 18+)
+
 ```ts
 import {
   generateCPF,
@@ -99,7 +116,7 @@ import {
   generateCNPJ,
   isValidCNPJ,
   formatCNPJ,
-} from '@codemastersolutions/codedev';
+} from "@codemastersolutions/codedev";
 
 const cpf = generateCPF(true);
 const isCpfValid = isValidCPF(cpf);
@@ -113,9 +130,33 @@ const isCnpjValid = isValidCNPJ(cnpj);
 const prettyCnpj = formatCNPJ(cnpj);
 ```
 
+### Geração de CPF por UF (Estado)
+
+Você pode fixar o dígito regional do CPF informando a UF (estado):
+
+```ts
+import { generateCPF, isValidCPF } from "@codemastersolutions/codedev";
+
+// São Paulo (SP → dígito regional 8)
+const cpfSP = generateCPF({ formatted: true, uf: "SP" });
+console.log(cpfSP); // ex.: 123.456.789-09
+console.log(isValidCPF(cpfSP)); // true
+
+// Rio de Janeiro (RJ → dígito regional 7) e Rio Grande do Sul (RS → 0)
+const cpfRJ = generateCPF({ uf: "RJ" });
+const cpfRS = generateCPF({ uf: "RS" });
+```
+
+Observações:
+
+- `generateCPF(true)` e `generateCPF(false)` continuam funcionando como antes.
+- Para escolher UF, use a forma com objeto: `generateCPF({ formatted?: boolean; uf?: UF })`.
+- A CLI atualmente não recebe UF; utilize a API de biblioteca para essa necessidade.
+
 Consumidores CommonJS podem usar `require('@codemastersolutions/codedev')` para importar as mesmas funções.
 
 ### Uso local (sem instalação global)
+
 Se o pacote estiver instalado como `devDependency` no projeto:
 
 ```bash
@@ -139,6 +180,12 @@ pnpm build
 pnpm lint
 pnpm test:coverage
 ```
+
+Com outros gerenciadores de pacotes:
+
+- npm: `npm run lint` e `npm run test:coverage`
+- yarn: `yarn lint` e `yarn test:coverage`
+- bun: `bun run lint` e `bun run test:coverage`
 
 ## CI/CD
 
