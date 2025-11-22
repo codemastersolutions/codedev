@@ -1,5 +1,9 @@
 import tsParser from '@typescript-eslint/parser';
 import tsEslintPlugin from '@typescript-eslint/eslint-plugin';
+import { fileURLToPath } from 'node:url';
+
+// Normalize tsconfigRootDir to an absolute, cross-platform path
+const tsRootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default [
   // Source files (typed linting with base tsconfig)
@@ -12,7 +16,7 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.base.json',
-        tsconfigRootDir: new URL('.', import.meta.url).pathname
+        tsconfigRootDir: tsRootDir
       }
     },
     plugins: {
@@ -34,7 +38,7 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.test.json',
-        tsconfigRootDir: new URL('.', import.meta.url).pathname
+        tsconfigRootDir: tsRootDir
       },
       globals: {
         describe: 'readonly',
