@@ -74,6 +74,25 @@ describe("CPF utilities", () => {
     expect(found).toBe(true);
   });
 
+  it("detects invalid CPF when the first verifier digit is altered", () => {
+    const valid = generateCPF(false);
+    expect(isValidCPF(valid)).toBe(true);
+    const alteredD1 = ((parseInt(valid[9], 10) + 1) % 10).toString();
+    const broken = valid.slice(0, 9) + alteredD1 + valid.slice(10);
+    // Should fail early at d1 check: if (d1 !== nums[9]) return false;
+    expect(isValidCPF(broken)).toBe(false);
+  });
+
+  it("detects invalid formatted CPF when the first verifier digit is altered", () => {
+    const formatted = generateCPF(true); // XXX.XXX.XXX-YY
+    expect(isValidCPF(formatted)).toBe(true);
+    // First verifier digit is at index 12 in formatted form
+    const d1Char = formatted[12];
+    const alteredD1 = ((parseInt(d1Char, 10) + 1) % 10).toString();
+    const broken = formatted.slice(0, 12) + alteredD1 + formatted.slice(13);
+    expect(isValidCPF(broken)).toBe(false);
+  });
+
   it("rejects invalid length CPF", () => {
     expect(isValidCPF("")).toBe(false);
     expect(isValidCPF("123")).toBe(false);
