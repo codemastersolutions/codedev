@@ -6,11 +6,11 @@
   "author": "CodeMaster Soluções",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/CodeDev.git"
+    "url": "https://github.com/codemastersolutions/codedev"
   },
-  "homepage": "https://github.com/your-org/CodeDev",
+  "homepage": "https://github.com/codemastersolutions/codedev",
   "bugs": {
-    "url": "https://github.com/your-org/CodeDev/issues"
+    "url": "https://github.com/codemastersolutions/codedev/issues"
   },
   "bin": {
     "codedev": "./dist/cjs/cli.js",
