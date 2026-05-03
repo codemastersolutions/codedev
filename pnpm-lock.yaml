@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@codemastersolutions/commitzero':
-        specifier: ^0.0.41
-        version: 0.0.41
+        specifier: ^0.0.47
+        version: 0.0.47
       '@types/node':
         specifier: ^20.11.30
         version: 20.19.25
@@ -112,8 +112,8 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@codemastersolutions/commitzero@0.0.41':
-    resolution: {integrity: sha512-BMl1gukNIvXC8tv2wh+LzINCU9i8lI1yra4m7ssVmwjDu3bVtqwqTPl+4sdPVmIt9hy9KMDJZP7MdSGTJo8ibQ==}
+  '@codemastersolutions/commitzero@0.0.47':
+    resolution: {integrity: sha512-1dNh+By8JGld/2QEXgtTRz3roWaPjirgX1YUPvnGcKLhKIV0wz4XfQbjDDaZeCxn5VqPT0WrTSe0MTsoOal7Nw==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -1315,7 +1315,7 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@codemastersolutions/commitzero@0.0.41': {}
+  '@codemastersolutions/commitzero@0.0.47': {}
 
   '@esbuild/aix-ppc64@0.25.12':
     optional: true

@@ -23,6 +23,22 @@ describe('CNPJ utilities', () => {
     expect(cnpj).toMatch(/^\d{14}$/);
   });
 
+  it('validates known alphanumeric CNPJ example', () => {
+    expect(isValidCNPJ('12.ABC.345/01DE-35')).toBe(true);
+    expect(isValidCNPJ('12.ABC.345/01DE-00')).toBe(false);
+    expect(isValidCNPJ('12.ABC.345/01de-35')).toBe(true);
+  });
+
+  it('generates and validates alphanumeric CNPJ (formatted and raw)', () => {
+    const formatted = generateCNPJ({ type: 'alphanumeric', formatted: true });
+    expect(isValidCNPJ(formatted)).toBe(true);
+    expect(formatted).toMatch(/^[0-9A-Z]{2}\.[0-9A-Z]{3}\.[0-9A-Z]{3}\/[0-9A-Z]{4}-\d{2}$/);
+
+    const raw = generateCNPJ({ type: 'alphanumeric', formatted: false });
+    expect(isValidCNPJ(raw)).toBe(true);
+    expect(raw).toMatch(/^[0-9A-Z]{12}\d{2}$/);
+  });
+
   it('rejects invalid length CNPJ', () => {
     expect(isValidCNPJ('')).toBe(false);
     expect(isValidCNPJ('123')).toBe(false);
@@ -32,6 +48,11 @@ describe('CNPJ utilities', () => {
   it('formatCNPJ returns original when length not 14', () => {
     expect(formatCNPJ('123')).toBe('123');
     expect(formatCNPJ('')).toBe('');
+  });
+
+  it('formatCNPJ formats alphanumeric CNPJ', () => {
+    expect(formatCNPJ('12ABC34501DE35')).toBe('12.ABC.345/01DE-35');
+    expect(formatCNPJ('12.abc.345/01de-35')).toBe('12.ABC.345/01DE-35');
   });
 
   it('detects invalid CNPJ when only the last digit is altered', () => {
