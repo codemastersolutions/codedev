@@ -85,7 +85,7 @@ formatCNPJ(cnpj: string)
 ## Workflow / CI
 
 - Branching: open PRs against `dev`. Merging `dev → main` is what triggers release.
-- `release.yml` runs on merged PR to `main`: lint + test:coverage + build on Ubuntu/macOS/Windows × Node 18/20/22/24, then `pnpm version patch`, tag, GitHub Release, `npm publish --provenance --access public`.
+- `release.yml` runs on merged PR to `main`: lint + test:coverage + build on Ubuntu/macOS/Windows × Node 20/22/24, then `pnpm version patch`, tag, GitHub Release, `npm publish --provenance --access public`.
 - `dev-pr.yml` on PRs to `dev`: lint + test:coverage + `pnpm audit --audit-level=moderate` on the same OS/Node matrix.
 - `codeql.yml` runs on push to `dev`/`main` and weekly.
 - Only `dist/**`, `README.md`, `LICENSE` are published (see `files` in `package.json`).
@@ -93,7 +93,7 @@ formatCNPJ(cnpj: string)
 
 ## Conventions / gotchas
 
-- pnpm version is pinned via `packageManager: pnpm@10.17.0` — `pnpm-workspace.yaml` only declares `onlyBuiltDependencies` allowlist (`@codemastersolutions/commitzero`, `esbuild`), no actual workspace packages.
+- pnpm version is pinned via `packageManager: pnpm@12.4.2` — `pnpm-workspace.yaml` only declares `onlyBuiltDependencies` allowlist (`@codemastersolutions/commitzero`, `esbuild`), no actual workspace packages.
 - `.editorconfig`: 2-space indent, LF, UTF-8, trim trailing whitespace, **no** final newline (`insert_final_newline = false`). Don't add one.
 - `.gitignore`: `coverage`, `dist`, `node_modules`. There is no `dist/` in the working repo — it is gitignored and produced by `pnpm build`.
 - Both `codedev` and `cdev` binaries resolve to `./dist/cjs/cli.js` (not the ESM build). When testing CLI behavior locally, run `pnpm build` first or use `pnpm exec codedev ...` after a fresh build.
