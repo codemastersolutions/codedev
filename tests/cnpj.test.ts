@@ -41,15 +41,58 @@ describe("CNPJ utilities", () => {
   });
 
   it("generates and validates alphanumeric CNPJ (formatted and raw)", () => {
-    const formatted = generateCNPJ({ type: "alphanumeric", formatted: true });
+    const formatted = generateCNPJ({
+      type: "alphanumeric",
+      formatted: true,
+      branch: "filial",
+    });
     expect(isValidCNPJ(formatted)).toBe(true);
     expect(formatted).toMatch(
       /^[0-9A-Z]{2}\.[0-9A-Z]{3}\.[0-9A-Z]{3}\/[0-9A-Z]{4}-\d{2}$/,
     );
 
-    const raw = generateCNPJ({ type: "alphanumeric", formatted: false });
+    const raw = generateCNPJ({
+      type: "alphanumeric",
+      formatted: false,
+      branch: "filial",
+    });
     expect(isValidCNPJ(raw)).toBe(true);
     expect(raw).toMatch(/^[0-9A-Z]{12}\d{2}$/);
+  });
+
+  it("generates matriz alphanumeric CNPJ with 8 alphanum + 0001 branch + 2 numeric DV", () => {
+    const raw = generateCNPJ({
+      type: "alphanumeric",
+      formatted: false,
+      branch: "matriz",
+    });
+    expect(isValidCNPJ(raw)).toBe(true);
+    expect(raw).toMatch(/^[0-9A-Z]{8}0001\d{2}$/);
+
+    const formatted = generateCNPJ({
+      type: "alphanumeric",
+      formatted: true,
+      branch: "matriz",
+    });
+    expect(isValidCNPJ(formatted)).toBe(true);
+    expect(formatted).toMatch(
+      /^[0-9A-Z]{2}\.[0-9A-Z]{3}\.[0-9A-Z]{3}\/0001-\d{2}$/,
+    );
+  });
+
+  it("defaults branch to matriz when generating alphanumeric CNPJ", () => {
+    const raw = generateCNPJ({ type: "alphanumeric", formatted: false });
+    expect(raw).toMatch(/^[0-9A-Z]{8}\d{6}$/);
+    expect(isValidCNPJ(raw)).toBe(true);
+  });
+
+  it("treats numeric type as fully numeric regardless of branch", () => {
+    const matriz = generateCNPJ({ formatted: false, branch: "matriz" });
+    const filial = generateCNPJ({ formatted: false, branch: "filial" });
+    expect(matriz).toMatch(/^\d{14}$/);
+    expect(filial).toMatch(/^\d{14}$/);
+    expect(isValidCNPJ(matriz)).toBe(true);
+    expect(isValidCNPJ(filial)).toBe(true);
   });
 
   it("rejects alphanumeric CNPJ with non-numeric DV positions", () => {
@@ -63,21 +106,23 @@ describe("CNPJ utilities", () => {
     expect(isValidCNPJ(raw)).toBe(true);
   });
 
-  it("exercises generateAlphanumericCNPJ fallback path when RNG keeps repeating", () => {
+  it("generates valid alphanumeric CNPJ with mocked RNG (filial branch)", () => {
     const originalRandom = Math.random;
     let calls = 0;
     const alphabetLen = 36;
-    const loopCalls = 100 * 12;
     const seq = Array.from({ length: 12 }, (_, i) => (i + 0.1) / alphabetLen);
 
     Math.random = () => {
       calls += 1;
-      if (calls <= loopCalls) return 0;
-      return seq[(calls - loopCalls - 1) % seq.length]!;
+      return seq[(calls - 1) % seq.length]!;
     };
 
     try {
-      const raw = generateCNPJ({ type: "alphanumeric", formatted: false });
+      const raw = generateCNPJ({
+        type: "alphanumeric",
+        formatted: false,
+        branch: "filial",
+      });
       expect(raw).toMatch(/^[0-9A-Z]{12}\d{2}$/);
       expect(isValidCNPJ(raw)).toBe(true);
     } finally {
@@ -85,10 +130,54 @@ describe("CNPJ utilities", () => {
     }
   });
 
+  it("throws when maxAttempts is exhausted without a valid result", () => {
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+    try {
+      expect(() =>
+        generateCNPJ({
+          type: "alphanumeric",
+          formatted: false,
+          branch: "filial",
+          maxAttempts: 3,
+        }),
+      ).toThrow(/Failed to generate a valid CNPJ after 3 attempts/);
+    } finally {
+      Math.random = originalRandom;
+    }
+  });
+
+  it("throws when maxAttempts is 0", () => {
+    expect(() =>
+      generateCNPJ({ type: "alphanumeric", formatted: false, maxAttempts: 0 }),
+    ).toThrow(/Failed to generate a valid CNPJ after 0 attempts/);
+  });
+
   it("rejects invalid length CNPJ", () => {
     expect(isValidCNPJ("")).toBe(false);
     expect(isValidCNPJ("123")).toBe(false);
     expect(isValidCNPJ("123456789012345")).toBe(false);
+  });
+
+  it("rejects numeric CNPJ of any non-14 length via internal length check", () => {
+    // Exercises isValidNumericCNPJ `if (digits.length !== 14) return false;` (line 39).
+    expect(isValidCNPJ("0")).toBe(false);
+    expect(isValidCNPJ("1234567890")).toBe(false);
+    expect(isValidCNPJ("12345678901234")).toBe(false);
+    expect(isValidCNPJ("1234567890123456")).toBe(false);
+  });
+
+  it("rejects alphanumeric CNPJ of any non-14 length via internal regex check", () => {
+    expect(isValidCNPJ("A")).toBe(false);
+    expect(isValidCNPJ("AAAAAAAAA")).toBe(false);
+    expect(isValidCNPJ("AAAAAAAAAAAAAA")).toBe(false);
+    expect(isValidCNPJ("AAAAAAAAAAAAAAAAA")).toBe(false);
+  });
+
+  it("returns false for input containing only non-alphanumeric chars after mask strip", () => {
+    // After stripping the mask, normalized is empty → falls through to `return false`.
+    expect(isValidCNPJ("...")).toBe(false);
+    expect(isValidCNPJ("---")).toBe(false);
   });
 
   it("formatCNPJ returns original when length not 14", () => {

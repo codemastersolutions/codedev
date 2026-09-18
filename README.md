@@ -29,6 +29,7 @@ Após instalar globalmente:
 codedev generate cpf -f
 codedev v cpf 529.982.247-25
 cdev generate cnpj -f
+cdev generate cnpj --alphanumeric --branch filial -f
 cdev val cnpj 12.345.678/0001-95
 ```
 
@@ -50,10 +51,15 @@ cdev v cnpj 12.345.678/0001-95
 
 ### CLI Help & Saída
 
-- Comandos: `generate <cpf|cnpj> [--formatted|-f]`, `validate <cpf|cnpj> <value>`
+- Comandos: `generate <cpf|cnpj> [--formatted|-f] [--alphanumeric|-a] [--branch matriz|filial|-b]`, `validate <cpf|cnpj> <value>`
 - Aliases: `generate` → `g`, `gen`; `validate` → `v`, `val`
 - Saída de `validate`: imprime `valid` ou `invalid` e retorna `0` ou `1` respectivamente
 - Formatação: `--formatted`/`-f` aplica pontuação ao documento gerado (apenas em `generate`)
+- Alfanumérico: `--alphanumeric`/`-a` gera CNPJ alfanumérico (apenas em `generate cnpj`; sem a flag gera numérico)
+- Branch: `--branch`/`-b` aceita `matriz` (padrão) ou `filial` (apenas em `generate cnpj`)
+  - `matriz`: 8 primeiros caracteres alfanuméricos, branch fixo `0001`, 2 últimos (DV) numéricos — formato `AAAAAAAA0001DD`
+  - `filial`: 12 caracteres alfanuméricos, 2 últimos (DV) numéricos
+- Geração com retentativas: até 10 tentativas; se nenhuma passar em `isValidCNPJ`, aborta com mensagem de erro e exit code `1`
 - Compatibilidade: aceita `--formated`/`--format` por compatibilidade
 
 ## Run via pnpm dlx
@@ -96,8 +102,12 @@ codedev val cnpj 12.345.678/0001-95
 ### Flags
 
 ```text
---formatted   Output with formatting (preferred)
--f            Short flag alias for formatted output
+--formatted             Output with formatting (preferred)
+-f                      Short flag alias for formatted output
+--alphanumeric          Generate alphanumeric CNPJ (cnpj only; numeric by default)
+-a                      Short flag alias for --alphanumeric
+--branch matriz|filial  Generate matriz (default) or filial CNPJ (cnpj only)
+-b                      Short flag alias for --branch
 ```
 
 > Nota: o parser aceita `--formated` por compatibilidade, mas não é recomendado.
@@ -152,6 +162,30 @@ Observações:
 - `generateCPF(true)` e `generateCPF(false)` continuam funcionando como antes.
 - Para escolher UF, use a forma com objeto: `generateCPF({ formatted?: boolean; uf?: UF })`.
 - A CLI atualmente não recebe UF; utilize a API de biblioteca para essa necessidade.
+
+### Geração de CNPJ por tipo de branch (matriz/filial)
+
+`generateCNPJ` aceita `branch` e `maxAttempts`:
+
+```ts
+import { generateCNPJ, isValidCNPJ } from "@codemastersolutions/codedev";
+
+// Matriz (padrão): 8 alfanuméricos + branch "0001" + 2 DV numéricos
+const matriz = generateCNPJ({ type: "alphanumeric", branch: "matriz" });
+console.log(matriz);   // ex.: ZVE1Z0XM000148
+console.log(isValidCNPJ(matriz)); // true
+
+// Filial: 12 alfanuméricos + 2 DV numéricos
+const filial = generateCNPJ({ type: "alphanumeric", branch: "filial" });
+console.log(filial);   // ex.: BNZGN5W84Y8L07
+console.log(isValidCNPJ(filial)); // true
+```
+
+Observações:
+
+- Padrão de `branch` é `"matriz"`.
+- Para CNPJ numérico (sem `--alphanumeric`/`type`), `branch` é irrelevante — toda a sequência é numérica.
+- A geração valida cada candidato com `isValidCNPJ`. Em caso de falha, repete até `maxAttempts` (padrão `10`); se esgotar, lança `Error("Failed to generate a valid CNPJ after N attempts")`. A CLI captura e exibe a mensagem ao usuário com exit `1`.
 
 Consumidores CommonJS podem usar `require('@codemastersolutions/codedev')` para importar as mesmas funções.
 
