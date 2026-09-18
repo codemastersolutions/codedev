@@ -114,9 +114,9 @@ codedev val cnpj 12.345.678/0001-95
 
 ## Library API
 
-O pacote é dual-target: ESM e CommonJS, com tipagens em `dist/types`. Node `>=18` é requerido.
+O pacote é dual-target: ESM e CommonJS, com tipagens em `dist/types`. Node `>=22.12` é requerido.
 
-### ESM (TypeScript / Node 18+)
+### ESM (TypeScript / Node 22.12+)
 
 ```ts
 import {
