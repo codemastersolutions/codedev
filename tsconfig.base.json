@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
+    "ignoreDeprecations": "6.0",
     "types": ["node", "vitest"]
   },
   "include": ["src"],
