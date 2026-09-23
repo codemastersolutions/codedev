@@ -17,8 +17,11 @@ const W2: number[] = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 const ASCII_ZERO = "0".codePointAt(0);
 const ALPHANUM = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-function stripCNPJMask(value: string): string {
-  return (value || "").toUpperCase().replace(/[^0-9A-Z]+/g, "");
+export function sanitizeCNPJ(value: unknown): string {
+  return String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^0-9A-Z]+/g, "");
 }
 
 function isRepeatedNumericSequence(digits: string): boolean {
@@ -59,7 +62,7 @@ function isValidAlphanumericCNPJ(value: string): boolean {
 }
 
 export function isValidCNPJ(input: string): boolean {
-  const normalized = stripCNPJMask(input);
+  const normalized = sanitizeCNPJ(input);
   if (/^\d+$/.test(normalized)) return isValidNumericCNPJ(normalized);
   if (/^[0-9A-Z]+$/.test(normalized)) return isValidAlphanumericCNPJ(normalized);
   return false;
@@ -129,7 +132,7 @@ export function generateCNPJ(
 }
 
 export function formatCNPJ(cnpj: string): string {
-  const value = stripCNPJMask(cnpj);
+  const value = sanitizeCNPJ(cnpj);
   if (value.length !== 14) return value;
   return `${value.slice(0, 2)}.${value.slice(2, 5)}.${value.slice(5, 8)}/${value.slice(8, 12)}-${value.slice(12)}`;
 }

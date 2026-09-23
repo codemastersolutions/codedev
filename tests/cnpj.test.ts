@@ -3,10 +3,32 @@ import {
   formatCNPJ,
   generateCNPJ,
   isValidCNPJ,
+  sanitizeCNPJ,
   stripNonDigits,
 } from "../src/lib/cnpj";
 
 describe("CNPJ utilities", () => {
+  it("sanitizeCNPJ trims, uppercases and strips non-alphanumerics", () => {
+    expect(sanitizeCNPJ("  12.abc.345/01de-35  ")).toBe("12ABC34501DE35");
+    expect(sanitizeCNPJ("12ABC34501DE35")).toBe("12ABC34501DE35");
+    expect(sanitizeCNPJ("")).toBe("");
+  });
+
+  it("sanitizeCNPJ tolerates null/undefined and coerces non-string input", () => {
+    expect(sanitizeCNPJ(null)).toBe("");
+    expect(sanitizeCNPJ(undefined)).toBe("");
+    expect(sanitizeCNPJ(12345678000195 as unknown as string)).toBe("12345678000195");
+  });
+
+  it("isValidCNPJ accepts input with surrounding whitespace and mixed case", () => {
+    expect(isValidCNPJ("  12.abc.345/01de-35  ")).toBe(true);
+    expect(isValidCNPJ("\t12.ABC.345/01DE-35\n")).toBe(true);
+  });
+
+  it("isValidCNPJ rejects null/undefined without throwing", () => {
+    expect(isValidCNPJ(null as unknown as string)).toBe(false);
+    expect(isValidCNPJ(undefined as unknown as string)).toBe(false);
+  });
   it("stripNonDigits removes non-digit chars and tolerates empty/undefined input", () => {
     expect(stripNonDigits("12.ABC.345/01DE-35")).toBe("123450135");
     expect(stripNonDigits("")).toBe("");
