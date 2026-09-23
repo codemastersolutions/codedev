@@ -1,11 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { formatCPF, generateCPF, isValidCPF } from "../src/lib/cpf";
+import { formatCPF, generateCPF, isValidCPF, sanitizeCPF } from "../src/lib/cpf";
 
 describe("CPF utilities", () => {
   it("validates a known valid CPF", () => {
     const cpf = "52998224725";
     expect(isValidCPF(cpf)).toBe(true);
     expect(isValidCPF(formatCPF(cpf))).toBe(true);
+  });
+
+  it("sanitizeCPF trims and strips non-digits", () => {
+    expect(sanitizeCPF("  529.982.247-25  ")).toBe("52998224725");
+    expect(sanitizeCPF("52998224725")).toBe("52998224725");
+    expect(sanitizeCPF("")).toBe("");
+  });
+
+  it("sanitizeCPF tolerates null/undefined and coerces non-string input", () => {
+    expect(sanitizeCPF(null)).toBe("");
+    expect(sanitizeCPF(undefined)).toBe("");
+    expect(sanitizeCPF(52998224725 as unknown as string)).toBe("52998224725");
+  });
+
+  it("isValidCPF accepts input with surrounding whitespace", () => {
+    expect(isValidCPF("  529.982.247-25  ")).toBe(true);
+    expect(isValidCPF("\t52998224725\n")).toBe(true);
+  });
+
+  it("isValidCPF rejects null/undefined without throwing", () => {
+    expect(isValidCPF(null as unknown as string)).toBe(false);
+    expect(isValidCPF(undefined as unknown as string)).toBe(false);
   });
 
   it("rejects invalid CPF (wrong digits)", () => {

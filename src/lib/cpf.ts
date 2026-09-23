@@ -2,6 +2,10 @@ export function stripNonDigits(value: string): string {
   return (value || "").replace(/\D+/g, "");
 }
 
+export function sanitizeCPF(value: unknown): string {
+  return String(value ?? "").trim().replace(/\D+/g, "");
+}
+
 function isRepeatedSequence(digits: string): boolean {
   return /^(\d)\1{10}$/.test(digits);
 }
@@ -16,7 +20,7 @@ function calcCpfDigit(baseDigits: number[], weightStart: number): number {
 }
 
 export function isValidCPF(input: string): boolean {
-  const digits = stripNonDigits(input);
+  const digits = sanitizeCPF(input);
   if (digits.length !== 11) return false;
   if (isRepeatedSequence(digits)) return false;
 
@@ -112,7 +116,7 @@ export function generateCPF(
 }
 
 export function formatCPF(cpf: string): string {
-  const digits = stripNonDigits(cpf);
+  const digits = sanitizeCPF(cpf);
   if (digits.length !== 11) return digits;
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 }
