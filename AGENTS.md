@@ -49,7 +49,7 @@ vitest.config.mts   # node env, globals true, coverage on src/lib/**/*.ts only
 
 Coverage thresholds (90% lines/statements/functions/branches) apply **only to `src/lib/**/*.ts`**. `src/cli.ts` and `src/index.ts` are intentionally not in the coverage gate.
 
-`src/lib/cpf.ts` and `src/lib/cnpj.ts` each declare their own private `stripNonDigits` — intentional duplication, not a bug.
+`src/lib/cpf.ts` and `src/lib/cnpj.ts` each declare their own `stripNonDigits` — intentional duplication, kept exported for backward compat with consumers and tests.
 
 Coverage provider is selected in `vitest.config.mts`: **v8 on Node ≥19, istanbul on Node <19.** Since `engines.node` is `>=20.12`, only the v8 path is ever exercised in practice — but both `@vitest/coverage-v8` and `@vitest/coverage-istanbul` are installed for that reason.
 
@@ -77,22 +77,27 @@ generateCPF(formatted?: boolean)
 generateCPF(options?: { formatted?: boolean; uf?: UF })
 isValidCPF(input: string)
 formatCPF(cpf: string)
+sanitizeCPF(value: unknown): string
 generateCNPJ(formatted?: boolean)
 generateCNPJ(options?: { formatted?: boolean; type?: "numeric"|"alphanumeric"; branch?: "matriz"|"filial"; maxAttempts?: number })
 isValidCNPJ(input: string)
 formatCNPJ(cnpj: string)
+sanitizeCNPJ(value: unknown): string
 ```
 
 - `generateCPF({ uf: "SP" })` pins the 9th digit to the state region digit (`UF_REGION_DIGIT` table in `src/lib/cpf.ts`). CLI **does not** accept UF — library API only.
-- `generateCNPJ` validates each candidate via `isValidCNPJ` and retries up to `maxAttempts` (default `10`). On exhaustion throws `Error("Failed to generate a valid CNPJ after N attempts")`. CLI catches, prints, exits `1`.
+- `sanitizeCPF` / `sanitizeCNPJ` are the explicit pre-validation normalize step: coerce non-string input via `String(value ?? "")`, trim, then strip non-digits (CPF) or uppercase + strip non-alphanumerics (CNPJ). Called as the first line of `isValid*` and `format*`.
+- `generateCNPJ` validates each candidate via `isValidCNPJ` and retries up to `maxAttempts` (default `10`). On exhaustion throws `Error("Failed to generate a valid CNPJ after N attempts")`. CLI catches, prints, exits `1`. Retry applies to numeric and alphanumeric alike.
 - Both `generate*` accept `(boolean)` and `({ formatted? })` overloads — check both signatures before editing.
 
 ## Workflow / CI
 
 - Branching: open PRs against `dev`. Merging `dev → main` triggers release.
-- `release.yml`: on merged PR to `main` → lint + test:coverage + build on Ubuntu/macOS/Windows × Node 20/22/24, then `pnpm version patch`, tag, GitHub Release, `npm publish --provenance --access public`. Release job hardcodes `node-version: 24`.
+- **Release auto-bumps the patch version** via `pnpm version patch` (then commits + tags + creates GitHub Release + publishes). **Do not manually edit `version` in `package.json`** — release flow owns the bump.
+- `release.yml`: on merged PR to `main` → lint + test:coverage + build on Ubuntu/macOS/Windows × Node 20/22/24 (release job hardcodes `node-version: 24`), then version-bump + tag + GitHub Release + `npm publish --provenance --access public`. Uploads `coverage/coverage-final.json` and `coverage/` as artifacts and pushes to Codecov (`fail_ci_if_error: false`).
 - `dev-pr.yml`: on PRs to `dev` → lint + test:coverage + `pnpm audit --audit-level=moderate` on the same OS/Node matrix.
-- `codeql.yml`: on push to `dev`/`main` and weekly.
+- `codeql.yml`: on push to `dev`/`main`, PRs to `dev`/`main`, and weekly cron.
+- CI uses `pnpm install --no-frozen-lockfile` — the lockfile is **not** treated as frozen in CI, so local drift is tolerated upstream.
 - Only `dist/**`, `README.md`, `LICENSE` are published (see `files` in `package.json`).
 - Commits must follow Conventional Commits — `commitzero` enforces this. See Conventions below.
 
@@ -100,6 +105,7 @@ formatCNPJ(cnpj: string)
 
 - **pnpm version** pinned via `packageManager: pnpm@12.4.2`. `pnpm-workspace.yaml` declares a build allowlist (`@codemastersolutions/commitzero`, `esbuild`); there are no actual workspace packages.
 - **commitzero hooks** run `pnpm run lint && pnpm run test && pnpm run build` (3m timeout, see `commitzero.config.json`) **before every commit** triggered via `pnpm commit` / `pnpm commit:push`. If any step fails, the commit is aborted — fix the failure, don't bypass.
+- `commitzero` runs a **daily version check** (`versionCheckPeriod: "daily"`) and will auto-update itself; `versionCheckEnabled: true`.
 - **Hooks are NOT installed** in fresh clones (`.git/hooks/` ships only `.sample` files). Run `pnpm commitzero:install` once after `pnpm install`.
 - `.editorconfig`: 2-space indent, LF, UTF-8, trim trailing whitespace, **no** final newline (`insert_final_newline = false`). Don't add one.
 - `.gitignore`: `coverage`, `dist`, `node_modules`, `.serena`, `.vitest`. There is **no `dist/` in git** — it's gitignored and produced by `pnpm build`. A `dist/` directory in the working tree is expected after a local build; don't commit it.

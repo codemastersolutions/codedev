@@ -1,2 +1,2 @@
-export { generateCPF, isValidCPF, formatCPF } from './lib/cpf';
-export { generateCNPJ, isValidCNPJ, formatCNPJ } from './lib/cnpj';
+export { generateCPF, isValidCPF, formatCPF, sanitizeCPF } from './lib/cpf';
+export { generateCNPJ, isValidCNPJ, formatCNPJ, sanitizeCNPJ } from './lib/cnpj';
